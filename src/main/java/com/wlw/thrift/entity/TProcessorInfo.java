@@ -6,13 +6,18 @@ import org.apache.thrift.TProcessor;
 
 public class TProcessorInfo {
 	
+	private	String      serverName;
    private	String      serviceName;
    private   TProcessor processor;
   
-   public TProcessorInfo(String serviceName, TProcessor processor) {
-		this.serviceName = serviceName;
-		this.processor = processor;
-	}
+
+	public String getServerName() {
+	return serverName;
+}
+
+public void setServerName(String serverName) {
+	this.serverName = serverName;
+}
 
 	public String getServiceName() {
 		return serviceName;

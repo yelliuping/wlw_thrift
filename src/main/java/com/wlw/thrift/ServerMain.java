@@ -7,12 +7,14 @@ import java.net.URL;
 import java.util.LinkedHashMap;
 
 import com.sun.jndi.toolkit.url.Uri;
+import com.wlw.thrift.consts.ServerConst;
 import com.wlw.thrift.util.ThriftUri;
 import com.wlw.thrift.zookeeper.server.ZkManager;
 
 public class ServerMain {
 	
 	public static void main(String[] args) throws Exception {
+		ServerConst.init();
 		ZkManager.start();
 	}
 	

@@ -180,9 +180,9 @@ public class ServerProperties {
 		
 		public static String SERVER_CONFIG_FILE = System.getProperty("serverProperties","src/main/resources/server.properties");
 		
-		public static String SERVER_NAME 	= "thrift.server.name";
-		public static String SERVER_IP 		= "thrift.server.ip";
-		public static String SERVER_PORT    = "thrift.server.port";
+		public static String SERVER_NAME 	= "thrift.servers";
+		public static String SERVER_IP 		= "thrift.%s.ip";
+		public static String SERVER_PORT    = "thrift.%s.port";
 		
 		public static String ACCEPT_THREADS = "acceptThreads";
 		public static String SELECT_THREADS = "selectThreads";
