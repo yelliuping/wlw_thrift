@@ -1,5 +1,8 @@
 package com.wlw.thrift.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ThriftConfigInfo {
 	
 	private String server;
@@ -10,6 +13,8 @@ public class ThriftConfigInfo {
 	private int selectThreads;
 	private int acceptedQueueSize;
 	private int workThreads;
+	
+	private List<String> services = new ArrayList<>();
 	
 	public ThriftConfigInfo() {}
 	
@@ -45,6 +50,60 @@ public class ThriftConfigInfo {
 	public void setPort(int port) {
 		this.port = port;
 	}
+	
+	
+	
+
+	public int getAcceptThreads() {
+		return acceptThreads;
+	}
+
+
+	public void setAcceptThreads(int acceptThreads) {
+		this.acceptThreads = acceptThreads;
+	}
+
+
+	public int getSelectThreads() {
+		return selectThreads;
+	}
+
+
+	public void setSelectThreads(int selectThreads) {
+		this.selectThreads = selectThreads;
+	}
+
+
+	public int getAcceptedQueueSize() {
+		return acceptedQueueSize;
+	}
+
+
+	public void setAcceptedQueueSize(int acceptedQueueSize) {
+		this.acceptedQueueSize = acceptedQueueSize;
+	}
+
+
+	public int getWorkThreads() {
+		return workThreads;
+	}
+
+
+	public void setWorkThreads(int workThreads) {
+		this.workThreads = workThreads;
+	}
+
+	
+
+	public List<String> getServices() {
+		return services;
+	}
+
+
+	public void setServices(List<String> services) {
+		this.services = services;
+	}
+
 
 	@Override
 	public String toString() {

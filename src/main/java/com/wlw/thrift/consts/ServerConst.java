@@ -65,7 +65,7 @@ public class ServerConst {
 	
 
    public static class KEYS{
-	   public static String config_name 	= "thrift-server.properties";
+	   public static String config_name 	= "thrift-server";
 		public static String servers 		= "thrift.servers";
 		public static String server_ip 		= "thrift.%s.ip";
 		public static String server_port    = "thrift.%s.port";

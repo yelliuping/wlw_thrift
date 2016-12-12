@@ -1,5 +1,9 @@
 package com.wlw.thrift.entity;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
 /**
  * 
  * 发布者或订阅者在zk的协议模型
@@ -60,9 +64,19 @@ public class ProtocolModel {
 	public String getServices() {
 		return services;
 	}
-	
 	public void setServices(String services) {
 		this.services = services;
+	}
+	
+	public String getUri(){
+		String uri=scheme+"/"+host+":"+port+"/"+serverName+"?isMutil="+isMutil+"&state="+state+"&services="+services;
+		return uri;
+	}
+	
+	public static void main(String[] args) throws UnsupportedEncodingException {
+		String url="thrift://127.0.0.1:8080/serverName?isMutil=true&services=helloService,helloService&state=1";
+	    String decode=	URLEncoder.encode(url, "UTF-8");
+	    System.out.println(decode);
 	}
 	  
 }

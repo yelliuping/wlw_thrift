@@ -1,14 +1,12 @@
 package com.wlw.thrift;
 
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.sun.jndi.toolkit.url.Uri;
 import com.wlw.thrift.consts.ServerConst;
-import com.wlw.thrift.util.ThriftUri;
+import com.wlw.thrift.entity.TProcessorInfo;
+import com.wlw.thrift.server.ServerManager;
 import com.wlw.thrift.zookeeper.server.ZkManager;
 
 public class ServerMain {
@@ -16,6 +14,9 @@ public class ServerMain {
 	public static void main(String[] args) throws Exception {
 		ServerConst.init();
 		ZkManager.start();
+		List<TProcessorInfo> processors =new ArrayList<>();
+		ServerManager.start(processors);
+		
 	}
 	
 	

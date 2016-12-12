@@ -10,19 +10,23 @@ import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TNonblockingServerSocket;
 import org.apache.thrift.transport.TNonblockingServerTransport;
 
-import com.wlw.thrift.consts.ServerProperties;
+import com.wlw.thrift.consts.ServerConst;
 import com.wlw.thrift.entity.TProcessorInfo;
+import com.wlw.thrift.entity.ThriftConfigInfo;
 import com.wlw.thrift.util.Logger;
 
 
 public class ServerManager {
 	private static final Logger logger = Logger.getLogger(ServerManager.class);
-	TServer server=null;
+	public static TServer server=null;
 	
-	public void start(List<TProcessorInfo> processors) {
-		ServerProperties property = ServerProperties.getInstance();
+	public static ThriftConfigInfo thriftConfog=(ThriftConfigInfo)ServerConst.serversMap.values().toArray()[0];
+	
+	public static void  start(List<TProcessorInfo> processors) {
+		//ServerProperties property = ServerProperties.getInstance();
+		//先获取第一个配置
 		try {
-			TNonblockingServerTransport serverTransport = new TNonblockingServerSocket(property.getPort());
+			TNonblockingServerTransport serverTransport = new TNonblockingServerSocket(thriftConfog.getPort());
 			TFramedTransport.Factory transportFactory = new TFramedTransport.Factory();
 			TBinaryProtocol.Factory protocolFactory = new TBinaryProtocol.Factory();
 			TMultiplexedProcessor processor = new ServerSideExtendedTMultiplexedProcessor();
@@ -32,12 +36,14 @@ public class ServerManager {
 			
 			for(TProcessorInfo p:processors){
 				processor.registerProcessor(p.getServiceName(), p.getProcessor());
+				thriftConfog.getServices().add(p.getServiceName());
 			}
 			
 			tArgs.processor(processor);
-			tArgs.selectorThreads(property.getSelectorThreads());
-			tArgs.acceptQueueSizePerThread(property.getQueueSize());
-			tArgs.workerThreads(property.getWorkerThreads());
+			tArgs.selectorThreads(thriftConfog.getSelectThreads());
+			tArgs.acceptQueueSizePerThread(thriftConfog.getAcceptedQueueSize());
+			tArgs.workerThreads(thriftConfog.getWorkThreads());
+			
 			
 			logger.info("***************");
 			logger.info("setting of thrift server is as follows:");
@@ -49,7 +55,7 @@ public class ServerManager {
 			server.serve();
 			
 		} catch (Exception e) {
-			logger.error("exception as :" + e.toString());
+			logger.error("ServerManager start error",e);
 		} finally {
 			logger.info("thrift server exit... @" + System.currentTimeMillis());
 			System.exit(0);
@@ -63,9 +69,10 @@ public class ServerManager {
 				server.stop();
 			}
 		} catch (Exception e) {
-			
+			logger.error("ServerManager stop error",e);	
 		}
 		
 	}
 
 }
+
