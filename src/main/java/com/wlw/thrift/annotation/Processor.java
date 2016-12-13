@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Processor {
-	String serverName() default "";//服务器名称（和启动server的时候的名称一致）客户端调用时使用
+	String server() default "";//服务器名称（和启动server的时候的名称一致）客户端调用时使用
 	String service() default "";// 服务接口名称
 
 }

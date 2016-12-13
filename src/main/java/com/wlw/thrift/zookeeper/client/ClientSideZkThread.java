@@ -1,6 +1,7 @@
 package com.wlw.thrift.zookeeper.client;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -25,7 +26,6 @@ public class ClientSideZkThread implements Runnable {
 	private static final Logger logger = Logger.getLogger(ClientSideZkThread.class);
 	private static CuratorFramework client = null;
 	private static ArrayList<PathChildrenCache> cacheList = new ArrayList<PathChildrenCache>();
-	private static PathChildrenCacheListener pathChildrenListener = null;
 	private static String PACKAGE = "package";
 
 	@SuppressWarnings("static-access")
@@ -38,6 +38,7 @@ public class ClientSideZkThread implements Runnable {
 			String threadName = Thread.currentThread().getName();
 			logger.info("当前运行线程: {" + threadName + "}");
 			Properties properties = ClientProperties.getInstance();
+			
 			{
 				RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, Integer.MAX_VALUE);
 				client = CuratorFrameworkFactory.builder()//
@@ -60,12 +61,14 @@ public class ClientSideZkThread implements Runnable {
 				logger.info("client 创建完毕 :" + client);
 				cdl.await();
 				// 增加路径监听器
-				pathChildrenListener = new ClientSideZkPathChildrenCacheListener();
+			//	pathChildrenListener = new ClientSideZkPathChildrenCacheListener();
 				// 绑定路径监听器
 				// 以前是通过配置文件，这里是通过扫描package获得
 				// 注意:检查问题，各种异常
-				String scanPackages = ClientProperties.getInstance().getProperty(PACKAGE);
-				Set<String> array = ClientSideProcessorFetcherHelper.fetchProcessors(scanPackages);
+			//	String scanPackages = ClientProperties.getInstance().getProperty(PACKAGE);
+			//	Set<String> array = ClientSideProcessorFetcherHelper.fetchProcessors(scanPackages);
+					Set<String> array = new HashSet<>();
+					array.add("/thrift/imServerTest/provider");
 				logger.info("all path here: " + array);
 				for (String s : array) {
 					// 修正
@@ -75,7 +78,7 @@ public class ClientSideZkThread implements Runnable {
 					// 注册监听
 					PathChildrenCache cache = new PathChildrenCache(client, s, true);
 					cacheList.add(cache);
-					cache.getListenable().addListener(pathChildrenListener);
+					cache.getListenable().addListener( new ClientSideZkPathChildrenCacheListener("imServerTest"));
 					cache.start(StartMode.POST_INITIALIZED_EVENT);
 				}
 			}

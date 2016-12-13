@@ -12,6 +12,11 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type;
 public class ClientSideZkPathChildrenCacheListener implements PathChildrenCacheListener {
 	private static final Logger logger = Logger.getLogger(ClientSideZkPathChildrenCacheListener.class);
 
+	private String server;
+	
+	public ClientSideZkPathChildrenCacheListener(String server){
+	this.server=server;
+	}
 	@Override
 	public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
 		// 测试发现，至少会受到以下几种（包含但不限于)
@@ -24,10 +29,12 @@ public class ClientSideZkPathChildrenCacheListener implements PathChildrenCacheL
 		ChildData data = event.getData();
 		if (null == data) {
 			// 不是我们需要的类型
-			logger.info("event received, type --- " + type + " data: null");
+			logger.info("listner:"+server+",event received, type --- " + type + " data: null");
 			return;
 		}
-		logger.info("event received, type --- " + type + " data: " + new String(data.getData(), "utf-8"));
+		
+		
+		logger.info("listner:"+server+",event received, type --- " + type + " data: null" );
 		//
 		// 计算path
 		String path = event.getData().getPath();// /test/HelloWorldService:0.2/PROVIDER/L0557-[192.168.56.105:10001]
@@ -43,14 +50,14 @@ public class ClientSideZkPathChildrenCacheListener implements PathChildrenCacheL
 		else if (Type.CHILD_REMOVED == type) {
 			eType = ClientSideZkEventType.REMOVED;
 		} else {
-			logger.error("unknown message type: " + type);
+			logger.error("listner:"+server+",unknown message type: " + type);
 			return;
 		}
 		// 构造ZkEvent
-		ClientSideZkEvent zkEvent = new ClientSideZkEvent(service, eType, new String(data.getData(), "utf-8"));
+		ClientSideZkEvent zkEvent = new ClientSideZkEvent(service, eType,null);
 		// 入队
 		ClientSideZkEventQueue.put(zkEvent);
-		logger.info("zkEvent---" + zkEvent);
+		logger.info("listner:"+server+",zkEvent---" + zkEvent);
 	}
 
 }

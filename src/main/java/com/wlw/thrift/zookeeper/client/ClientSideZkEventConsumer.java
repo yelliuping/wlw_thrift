@@ -25,18 +25,12 @@ public class ClientSideZkEventConsumer implements Runnable {
 				logger.info("service:" + serviceWithEdition);
 				logger.info("data:" + data);
 				logger.info("------------------------------------------");
-				String[] array = data.split(":");
-				if (null == array || array.length <= 1) {
-					throw new Exception("wrong message: " + data);
-				}
-				String ip = array[0];
-				int port = Integer.parseInt(array[1]);
 				// 交给LoadBalancer处理
 				if (ClientSideZkEventType.ADDED == type) {
 				} else if (ClientSideZkEventType.REMOVED == type) {
 				}
 			} catch (Exception e) {
-				logger.error(e.toString());
+				logger.error("ClientSideZkEventConsumer error",e);
 			}
 		} // while结束
 

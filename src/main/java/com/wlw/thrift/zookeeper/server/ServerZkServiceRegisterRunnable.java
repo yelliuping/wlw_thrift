@@ -6,6 +6,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.utils.EnsurePath;
 import org.apache.zookeeper.CreateMode;
 
+import com.wlw.thrift.consts.CommonConst;
 import com.wlw.thrift.entity.ProtocolModel;
 import com.wlw.thrift.entity.ThriftConfigInfo;
 import com.wlw.thrift.util.Logger;
@@ -21,7 +22,7 @@ public class ServerZkServiceRegisterRunnable implements Runnable {
 
 	public ServerZkServiceRegisterRunnable(CuratorFramework c, ThriftConfigInfo configInfo) {
 		this.client = c;
-		this.service = "/thrift/"+configInfo.getServer()+"/provider";
+		this.service = "/"+CommonConst.zk_server_root+"/"+configInfo.getServer()+"/"+CommonConst.zk_server_provider;
 		ProtocolModel model=new ProtocolModel();
 		try {
 			model.setHost(NetAddressUtils.getRealIp());
