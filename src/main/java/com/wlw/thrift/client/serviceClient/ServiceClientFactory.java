@@ -11,7 +11,6 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TSocket;
 
-import com.wlw.thrift.client.ClientSideTMultiplexedProtocol;
 import com.wlw.thrift.util.Logger;
 
 public class ServiceClientFactory<T extends TServiceClient> {
@@ -47,7 +46,7 @@ public class ServiceClientFactory<T extends TServiceClient> {
 		try {
 			TSocket transport = new TSocket(ip, port);
 			transport.open();
-			TMultiplexedProtocol tMultiProtocol = new ClientSideTMultiplexedProtocol(
+			TMultiplexedProtocol tMultiProtocol = new TMultiplexedProtocol(
 					new TBinaryProtocol(new TFramedTransport(transport)), service);
 			Constructor constructor = serviceClass.getConstructor(new Class[] { TProtocol.class });
 			T client = (T) constructor.newInstance(new Object[] { tMultiProtocol });

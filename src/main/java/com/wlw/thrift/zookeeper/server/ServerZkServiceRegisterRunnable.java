@@ -30,7 +30,7 @@ public class ServerZkServiceRegisterRunnable implements Runnable {
 			logger.error("NetAddressUtils.getRealIp error: ",e);
 		}
 		model.setPort(configInfo.getPort());
-		model.setServerName(configInfo.getServer());
+		model.setServer(configInfo.getServer());
 		model.setServices(configInfo.getServices().toString());
 		this.uri = model.getUri();
 	}

@@ -8,9 +8,9 @@ import com.wlw.thrift.entity.ProtocolModel;
 import com.wlw.thrift.util.Logger;
 import com.wlw.thrift.util.ThriftUriUtil;
 
-public class ClientSideZkEventConsumer implements Runnable {
+public class ClientZkEventConsumer implements Runnable {
 
-	private static final Logger logger = Logger.getLogger(ClientSideZkEventConsumer.class);
+	private static final Logger logger = Logger.getLogger(ClientZkEventConsumer.class);
 	private boolean isShutDown = false;
 
 	public void stop() {
@@ -23,7 +23,7 @@ public class ClientSideZkEventConsumer implements Runnable {
 			ClientZkEvent event=null;
 			try {
 				// 循环消费
-				event = ClientSideZkEventQueue.take();
+				event = ClientZkEventQueue.take();
 				if (null == event) {
 					TimeUnit.SECONDS.sleep(1);
 					continue;

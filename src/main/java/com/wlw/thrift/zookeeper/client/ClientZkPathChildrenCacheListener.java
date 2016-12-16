@@ -12,12 +12,12 @@ import com.wlw.thrift.util.Logger;
 
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type;
 
-public class ClientSideZkPathChildrenCacheListener implements PathChildrenCacheListener {
-	private static final Logger logger = Logger.getLogger(ClientSideZkPathChildrenCacheListener.class);
+public class ClientZkPathChildrenCacheListener implements PathChildrenCacheListener {
+	private static final Logger logger = Logger.getLogger(ClientZkPathChildrenCacheListener.class);
 
 	private String server;
 	
-	public ClientSideZkPathChildrenCacheListener(String server){
+	public ClientZkPathChildrenCacheListener(String server){
 	this.server=server;
 	}
 	@Override
@@ -67,7 +67,7 @@ public class ClientSideZkPathChildrenCacheListener implements PathChildrenCacheL
 		}
 		// 构造ZkEvent
 		ClientZkEvent zkEvent = new ClientZkEvent(eType, root,server,serverType,regNode);
-		ClientSideZkEventQueue.put(zkEvent);
+		ClientZkEventQueue.put(zkEvent);
 		logger.info("listner:"+server+",zkEvent---" + zkEvent);
 	}
 
