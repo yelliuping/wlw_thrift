@@ -1,41 +1,87 @@
 package com.wlw.thrift.client.serviceClient;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.thrift.TServiceClient;
 
+import com.wlw.thrift.util.Logger;
+
+/**
+ * ServiceClient 连接池
+ * 
+ * @author yelp
+ *
+ * @param <T>
+ */
 public class ServiceClientPool<T extends TServiceClient> {
-	private LinkedBlockingDeque<T> objectQeque=new LinkedBlockingDeque<T>();
-	private ServiceClientFactory<T> factory;
-	private AtomicInteger count = new AtomicInteger();
+	private static final Logger logger = Logger.getLogger(ServiceClientPool.class);
 	
-	public ServiceClientPool(ServiceClientFactory factory){
-		this.factory=factory;
+	private LinkedBlockingDeque<ServiceClientInfo<T>> objectQeque=new LinkedBlockingDeque<ServiceClientInfo<T>>();
+	private List<ServiceClientFactory<T>> factorys=new CopyOnWriteArrayList<>();
+	private AtomicInteger count = new AtomicInteger();
+	private int index=0;
+	public ServiceClientPool(){
+	}
+	public ServiceClientPool(ServiceClientFactory<T> factory){
+		factorys.add(factory);
 	}
 	
-	public T get() throws Exception{
-		T t=objectQeque.pollFirst();
-		if(t!=null){
+	public ServiceClientInfo<T> get() throws Exception{
+		ServiceClientInfo<T> clientInfo=objectQeque.pollFirst();
+		if(clientInfo!=null){
 			count.decrementAndGet();
 		}
-		if(t==null){
-			t=factory.create();
+		if(clientInfo==null){
+			if(factorys.size()==0){
+				throw new NullPointerException("factorys is empty");
+			}
+			int temIndex=index++;
+			if(temIndex>=factorys.size()){
+				temIndex=index=0;
+			}
+			ServiceClientFactory factory=factorys.get(temIndex);
+			clientInfo=factory.create();
 		}
-		return t;
+		return clientInfo;
 	}
 	
-    public void put(T t){
+    public LinkedBlockingDeque<ServiceClientInfo<T>> getObjectQeque() {
+		return objectQeque;
+	}
+
+	public void setObjectQeque(LinkedBlockingDeque<ServiceClientInfo<T>> objectQeque) {
+		this.objectQeque = objectQeque;
+	}
+
+	public List<ServiceClientFactory<T>> getFactorys() {
+		return factorys;
+	}
+
+	public void addFactory(ServiceClientFactory<T> factory) {
+		this.factorys.add(factory);
+	}
+
+	public void put(ServiceClientInfo<T> t){
     	if(!objectQeque.contains(t)){
     		objectQeque.push(t);
     		count.incrementAndGet();
     	}
     }
 	
-	private T create(){
-		
-		return null;
-		
+	public void add() throws Exception{
+		if(factorys.size()==0){
+			throw new NullPointerException("factorys is empty");
+		}
+		int temIndex=index++;
+		if(temIndex>=factorys.size()){
+			temIndex=index=0;
+		}
+		ServiceClientInfo<T> clientInfo =factorys.get(temIndex).create();
+		objectQeque.push(clientInfo);
+		count.incrementAndGet();
 	}
 
 }

@@ -4,6 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
+import com.wlw.thrift.util.ThriftUriUtil;
+
 /**
  * 
  * 发布者或订阅者在zk的协议模型
@@ -18,7 +20,7 @@ public class ProtocolModel {
 	private   String 	 scheme="thrift";//现在只支持 "thrift"
 	private   String     host;
 	private   int    	 port;
-	private   String     serverName;     //thrift服务启动的名称
+	private   String     server;     //thrift服务启动的名称
 	private   boolean    isMutil=true;   //是否是多service
 	private   String     services;       //服务名称用逗号隔开，如果isMutil=false那么services=""
 	private   byte 		 state=1;        //1 启用或2 禁用
@@ -43,11 +45,11 @@ public class ProtocolModel {
 		this.port = port;
 	}
 	
-	public String getServerName() {
-		return serverName;
+	public String getServer() {
+		return server;
 	}
-	public void setServerName(String serverName) {
-		this.serverName = serverName;
+	public void setServer(String server) {
+		this.server = server;
 	}
 	public byte getState() {
 		return state;
@@ -68,15 +70,25 @@ public class ProtocolModel {
 		this.services = services;
 	}
 	
+	public ProtocolModel parseUri(String uri){
+		return this;
+	}
+	
 	public String getUri(){
-		String uri=scheme+"/"+host+":"+port+"/"+serverName+"?isMutil="+isMutil+"&state="+state+"&services="+services;
+		String uri=scheme+"/"+host+":"+port+"/"+server+"?isMutil="+isMutil+"&state="+state+"&services="+services;
 		return uri;
 	}
 	
-	public static void main(String[] args) throws UnsupportedEncodingException {
+	
+	@Override
+	public String toString() {
+		return "ProtocolModel [scheme=" + scheme + ", host=" + host + ", port=" + port + ", serverName=" + server
+				+ ", isMutil=" + isMutil + ", services=" + services + ", state=" + state + "]";
+	}
+	public static void main(String[] args) throws Exception {
 		String url="thrift://127.0.0.1:8080/serverName?isMutil=true&services=helloService,helloService&state=1";
-	    String decode=	URLEncoder.encode(url, "UTF-8");
-	    System.out.println(decode);
+		
+	    System.out.println(ThriftUriUtil.uri(url).toString());
 	}
 	  
 }

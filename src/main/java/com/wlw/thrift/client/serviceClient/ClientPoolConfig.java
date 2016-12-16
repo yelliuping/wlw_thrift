@@ -8,6 +8,8 @@ public class ClientPoolConfig {
 	
 	private int port;// 服务端口
 	
+	private int server;//服务器
+	
 	private String service;// 服务名称
 	
 	private Class<? extends TServiceClient> serviceClass;// 服务class
@@ -23,6 +25,12 @@ public class ClientPoolConfig {
 	}
 	public void setPort(int port) {
 		this.port = port;
+	}
+	public int getServer() {
+		return server;
+	}
+	public void setServer(int server) {
+		this.server = server;
 	}
 	public String getService() {
 		return service;

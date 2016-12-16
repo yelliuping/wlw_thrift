@@ -1,5 +1,5 @@
 package com.wlw.thrift.zookeeper.client;
 
-public enum ClientSideZkEventType {
+public enum ClientZkEventType {
 	ADDED, UPDATED, REMOVED
 }

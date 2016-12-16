@@ -1,38 +1,55 @@
 package com.wlw.thrift.zookeeper.client;
 
+import java.util.concurrent.TimeUnit;
+
+import com.wlw.thrift.client.serverData.ClientData;
+import com.wlw.thrift.consts.CommonConst;
+import com.wlw.thrift.entity.ProtocolModel;
 import com.wlw.thrift.util.Logger;
+import com.wlw.thrift.util.ThriftUriUtil;
 
 public class ClientSideZkEventConsumer implements Runnable {
 
 	private static final Logger logger = Logger.getLogger(ClientSideZkEventConsumer.class);
+	private boolean isShutDown = false;
+
+	public void stop() {
+		isShutDown = true;
+	}
 
 	@Override
 	public void run() {
 		while (true) {
+			ClientZkEvent event=null;
 			try {
 				// 循环消费
-				ClientSideZkEvent event = ClientSideZkEventQueue.take();
-				if (null == event) {// 实际上不会发生，因为take函数做了判断
-					Thread.sleep(1000);
+				event = ClientSideZkEventQueue.take();
+				if (null == event) {
+					TimeUnit.SECONDS.sleep(1);
 					continue;
 				}
-				// 拿到了event，有效，怎么处理?
-				ClientSideZkEventType type = event.getType();
-				String serviceWithEdition = event.getService();
-				String data = event.getData();
-				logger.info("------------------------------------------");
-				logger.info("type: " + type);
-				logger.info("service:" + serviceWithEdition);
-				logger.info("data:" + data);
-				logger.info("------------------------------------------");
-				// 交给LoadBalancer处理
-				if (ClientSideZkEventType.ADDED == type) {
-				} else if (ClientSideZkEventType.REMOVED == type) {
+				logger.info("ClientSideZkEventConsumer take ClientSideZkEvent:" + event);
+				ClientZkEventType type = event.getType();
+				ProtocolModel protocolModel=ThriftUriUtil.uri(event.regNode);
+				
+				if(CommonConst.zk_server_provider.equals(event.getServerType())){
+					if (ClientZkEventType.ADDED == type) {
+						ClientData.add(protocolModel);
+					} else if (ClientZkEventType.REMOVED == type) {
+						//删除在线
+						ClientData.del(protocolModel);
+					}else{
+						logger.warn("ClientSideZkEventConsumer other event info:" + event);
+					}
 				}
+				
 			} catch (Exception e) {
-				logger.error("ClientSideZkEventConsumer error",e);
+				logger.error("ClientSideZkEventConsumer error event info:" + event, e);
 			}
-		} // while结束
+			if (isShutDown) {
+				break;
+			}
+		} 
 
 	}
 
