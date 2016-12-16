@@ -11,6 +11,7 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TSocket;
 
+import com.wlw.thrift.client.entity.ServiceClientInfo;
 import com.wlw.thrift.util.Logger;
 
 public class ServiceClientFactory<T extends TServiceClient> {

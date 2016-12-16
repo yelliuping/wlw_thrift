@@ -1,4 +1,4 @@
-package com.wlw.thrift.client.serviceClient;
+package com.wlw.thrift.client.entity;
 
 /**
  * 通用连接池配置

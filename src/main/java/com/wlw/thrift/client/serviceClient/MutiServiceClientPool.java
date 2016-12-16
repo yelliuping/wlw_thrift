@@ -6,6 +6,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.thrift.TServiceClient;
 
+import com.wlw.thrift.client.entity.CommonPoolConfig;
+import com.wlw.thrift.client.entity.ServiceClientInfo;
 import com.wlw.thrift.client.serverData.ClientData;
 import com.wlw.thrift.entity.ClientClassInfo;
 import com.wlw.thrift.entity.ProtocolModel;

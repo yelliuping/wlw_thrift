@@ -1,6 +1,8 @@
-package com.wlw.thrift.client.serviceClient;
+package com.wlw.thrift.client.entity;
 
 import org.apache.thrift.TServiceClient;
+
+import com.wlw.thrift.client.serviceClient.ServiceClientFactory;
 
 public class ServiceClientInfo<T extends TServiceClient> {
 	T serviceClient;

@@ -1,35 +1,29 @@
-package com.wlw.thrift.client.serviceClient;
+package com.wlw.thrift.client.entity;
 
 import org.apache.thrift.TServiceClient;
 
-public class ClientPoolConfig {
+public class ClientProcessorInfo {
 	
-	private String ip;// 服务ip
-	
-	private int port;// 服务端口
-	
-	private int server;//服务器
+	private String server;//服务器
 	
 	private String service;// 服务名称
 	
 	private Class<? extends TServiceClient> serviceClass;// 服务class
 	
-	public String getIp() {
-		return ip;
+	public ClientProcessorInfo() {
 	}
-	public void setIp(String ip) {
-		this.ip = ip;
+	
+	public ClientProcessorInfo(String server, String service, Class<? extends TServiceClient> serviceClass) {
+		this.server = server;
+		this.service = service;
+		this.serviceClass = serviceClass;
 	}
-	public int getPort() {
-		return port;
-	}
-	public void setPort(int port) {
-		this.port = port;
-	}
-	public int getServer() {
+
+
+	public String getServer() {
 		return server;
 	}
-	public void setServer(int server) {
+	public void setServer(String server) {
 		this.server = server;
 	}
 	public String getService() {

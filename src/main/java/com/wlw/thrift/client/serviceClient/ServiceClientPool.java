@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.thrift.TServiceClient;
 
+import com.wlw.thrift.client.entity.ServiceClientInfo;
 import com.wlw.thrift.util.Logger;
 
 /**
