@@ -6,8 +6,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.wlw.thrift.util.Logger;
 
 
-public class ClientSideZkEventQueue {
-	private static final Logger logger = Logger.getLogger(ClientSideZkEventQueue.class);
+public class ClientZkEventQueue {
+	private static final Logger logger = Logger.getLogger(ClientZkEventQueue.class);
 	
 	private static BlockingQueue<ClientZkEvent>  queue = new LinkedBlockingQueue<ClientZkEvent>(10000);
 

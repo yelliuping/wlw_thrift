@@ -11,19 +11,17 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache.StartMode;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 
-import com.wlw.thrift.client.socket.ClientSideProcessorFetcherHelper;
 import com.wlw.thrift.consts.ClientProperties;
 import com.wlw.thrift.util.Logger;
 
 
-public class ClientSideZkThread implements Runnable {
+public class ClientZkThread implements Runnable {
 
-	private static final Logger logger = Logger.getLogger(ClientSideZkThread.class);
+	private static final Logger logger = Logger.getLogger(ClientZkThread.class);
 	private static CuratorFramework client = null;
 	private static ArrayList<PathChildrenCache> cacheList = new ArrayList<PathChildrenCache>();
 	private static String PACKAGE = "package";
@@ -78,7 +76,7 @@ public class ClientSideZkThread implements Runnable {
 					// 注册监听
 					PathChildrenCache cache = new PathChildrenCache(client, s, true);
 					cacheList.add(cache);
-					cache.getListenable().addListener( new ClientSideZkPathChildrenCacheListener("imServerTest"));
+					cache.getListenable().addListener( new ClientZkPathChildrenCacheListener("imServerTest"));
 					cache.start(StartMode.POST_INITIALIZED_EVENT);
 				}
 			}
@@ -98,7 +96,7 @@ public class ClientSideZkThread implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			};// 是为了给下面的zk监听留出时间准备就绪
-			ClientSideZkReadyListener.countdown();// 告知客户端，可以开始了
+			ClientZkReadyListener.countdown();// 告知客户端，可以开始了
 		}
 		//
 		// 进入睡眠阶段
