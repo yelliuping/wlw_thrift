@@ -9,25 +9,26 @@ import com.wlw.thrift.annotation.Processor;
 import com.wlw.thrift.client.clientLocal.ClientThreadLocal;
 import com.wlw.thrift.client.entity.ClientProcessorInfo;
 import com.wlw.thrift.client.entity.ServiceClientInfo;
+import com.wlw.thrift.client.serviceClient.MutiServiceClientPool;
 import com.wlw.thrift.util.Logger;
 
 public class ClientManager {
 	private static final Logger logger = Logger.getLogger(ClientManager.class);
 	
-	private static ClientThreadLocal<ServiceClientInfo<? extends TServiceClient>> local = new ClientThreadLocal<>();
+	private  ClientThreadLocal<ServiceClientInfo<? extends TServiceClient>> local = new ClientThreadLocal<>();
 	
-	
-	public static void  start(List<Class<? extends TServiceClient>> clients) {
+	private MutiServiceClientPool<? extends TServiceClient> mutiPool;
+	public  void  start(List<Class<? extends TServiceClient>> clients) {
 		//先获取第一个配置
 		try {
-			for(int i=0;i<clients.size();i++){
-				
-			}
-			
-			
+			List<ClientProcessorInfo> clientInfos= getClientProcessorInfo(clients);
+			mutiPool=new MutiServiceClientPool<>(null);
+			mutiPool.addByClients(clientInfos);
 		} catch (Exception e) {
 			logger.error("ClientManager start error",e);
 		} 
+		
+		
 
 	}
 	

@@ -26,7 +26,7 @@ public class ServiceClientFactory<T extends TServiceClient> {
 
 	private Class<T> serviceClass;// 服务class
 
-	public ServiceClientFactory(String ip, int port, String server, String service, Class<T> serviceClass) {
+	public ServiceClientFactory(String ip, int port, String server, String service, Class serviceClass) {
 		this.ip = ip;
 		this.port = port;
 		this.server=server;

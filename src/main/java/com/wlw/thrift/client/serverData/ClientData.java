@@ -21,15 +21,15 @@ public class ClientData {
 	 */
 	private static ConcurrentHashMap<String,Set<ClientClassInfo>> clientClassesMap=new ConcurrentHashMap<>();
 	
-	public static void add(ProtocolModel model){
+	public static void addProvider(ProtocolModel model){
 		providersMap.put(model.getServer(), model);
 	}
 	
-	public static void del(ProtocolModel model){
+	public static void delProvider(ProtocolModel model){
 		providersMap.remove(model.getServer());
 	}
 	
-	public static ProtocolModel get(String serverName){
+	public static ProtocolModel getProvider(String serverName){
 		return providersMap.get(serverName);
 	}
 	

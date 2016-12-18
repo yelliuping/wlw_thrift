@@ -1,11 +1,13 @@
 package com.wlw.thrift.client.serviceClient;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.thrift.TServiceClient;
 
+import com.wlw.thrift.client.entity.ClientProcessorInfo;
 import com.wlw.thrift.client.entity.CommonPoolConfig;
 import com.wlw.thrift.client.entity.ServiceClientInfo;
 import com.wlw.thrift.client.serverData.ClientData;
@@ -33,7 +35,7 @@ public class MutiServiceClientPool<T extends TServiceClient> {
 		this.commonPoolConfig = commonPoolConfig;
 	}
 	
-	public boolean add(ProtocolModel model) {
+	public boolean addByModel(ProtocolModel model) {
 		logger.info("MutiServiceClientPool add start,model:" + model);
 		boolean addResult = false;
 		lock.writeLock().lock();
@@ -73,6 +75,38 @@ public class MutiServiceClientPool<T extends TServiceClient> {
 		return addResult;
 	}
 	
+	public void addByClients(List<ClientProcessorInfo> clientInfos){
+		for(ClientProcessorInfo clientInfo:clientInfos){
+			addByClient(clientInfo);
+		}
+		
+	}
+	public void addByClient(ClientProcessorInfo clientInfo){
+		lock.writeLock().lock();
+		ServiceClientFactory<T> factory=null;
+		try {
+			ProtocolModel model=ClientData.getProvider(clientInfo.getServer());
+			String key=model.getServer()+"_"+clientInfo.getServer();
+			ServiceClientPool<T> pool=poolMap.get(key);
+			 factory= new ServiceClientFactory<>(model.getHost(),
+												 model.getPort(),
+												 model.getServer(), 
+												 clientInfo.getService(), 
+												 clientInfo.getServiceClass());
+			 if (pool == null) {
+			    pool = new ServiceClientPool<>(factory);
+				poolMap.put(key, pool);
+			 }else{
+				 pool.addFactory(factory); 
+			 }
+			logger.debug("MutiServiceClientPool returnClientInfo success,key:"+key);
+		} catch (Exception e) {
+			logger.error("MutiServiceClientPool returnClientInfo error,clientInfo:"+factory, e);
+		}finally{
+			lock.writeLock().unlock();
+		}
+	}
+	
 	public ServiceClientInfo<T> getClientInfo(String server,String service){
 		ServiceClientInfo<T> clientInfo=null;
 		
@@ -94,6 +128,12 @@ public class MutiServiceClientPool<T extends TServiceClient> {
 		return clientInfo;
 	}
 	
+	public void returnClientInfo(List<ServiceClientInfo<T>> clientInfos){
+		for(ServiceClientInfo clientInfo:clientInfos){
+			returnClientInfo(clientInfo);
+		}
+		
+	}
 	public void returnClientInfo(ServiceClientInfo<T> clientInfo){
 		lock.writeLock().lock();
 		ServiceClientFactory<T> factory=null;
