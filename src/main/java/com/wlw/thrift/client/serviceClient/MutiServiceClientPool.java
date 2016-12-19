@@ -1,8 +1,12 @@
 package com.wlw.thrift.client.serviceClient;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.thrift.TServiceClient;
@@ -31,6 +35,8 @@ public class MutiServiceClientPool<T extends TServiceClient> {
 	
 	private  HashMap<String/*server_service */, ServiceClientPool<T>/*pool*/> poolMap = new HashMap<>();
 
+	private boolean isShutDown=false;
+	
 	public MutiServiceClientPool(CommonPoolConfig commonPoolConfig) {
 		this.commonPoolConfig = commonPoolConfig;
 	}
@@ -128,7 +134,7 @@ public class MutiServiceClientPool<T extends TServiceClient> {
 		return clientInfo;
 	}
 	
-	public void returnClientInfo(List<ServiceClientInfo<T>> clientInfos){
+	public void returnClientInfo(List<ServiceClientInfo> clientInfos){
 		for(ServiceClientInfo clientInfo:clientInfos){
 			returnClientInfo(clientInfo);
 		}
@@ -152,6 +158,26 @@ public class MutiServiceClientPool<T extends TServiceClient> {
 		}finally{
 			lock.writeLock().unlock();
 		}
+	}
+	
+	public void startThreadCheck(){
+		/*new Thread(new Runnable() {
+			public void run() {
+				while(!isShutDown){
+					try {
+						
+					} catch (Exception e) {
+						logger.error("MutiServiceClientPool CheckThread running error", e);
+						if(isShutDown){
+							
+						}
+					}
+				}
+			}
+		}).start();*/
+	}
+	public void shutdown(){
+		isShutDown=true;
 	}
 	
 	

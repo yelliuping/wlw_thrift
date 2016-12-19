@@ -2,7 +2,6 @@ package com.wlw.thrift.zookeeper.client;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
@@ -15,16 +14,20 @@ import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 
-import com.wlw.thrift.consts.ClientProperties;
+import com.wlw.thrift.consts.ClientConst;
+import com.wlw.thrift.consts.CommonConst;
 import com.wlw.thrift.util.Logger;
-
 
 public class ClientZkThread implements Runnable {
 
 	private static final Logger logger = Logger.getLogger(ClientZkThread.class);
 	private static CuratorFramework client = null;
 	private static ArrayList<PathChildrenCache> cacheList = new ArrayList<PathChildrenCache>();
-	private static String PACKAGE = "package";
+	private Set<String> servers;
+
+	public ClientZkThread(Set<String> servers) {
+		this.servers = servers;
+	}
 
 	@SuppressWarnings("static-access")
 	@Override
@@ -35,15 +38,13 @@ public class ClientZkThread implements Runnable {
 		try {
 			String threadName = Thread.currentThread().getName();
 			logger.info("当前运行线程: {" + threadName + "}");
-			Properties properties = ClientProperties.getInstance();
-			
 			{
 				RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, Integer.MAX_VALUE);
 				client = CuratorFrameworkFactory.builder()//
-						.connectString(properties.getProperty("zkClusterAddress"))//
-						.sessionTimeoutMs(Integer.parseInt(properties.getProperty("sessionTimeoutMs")))//
-						.connectionTimeoutMs(Integer.parseInt(properties.getProperty("connectionTimeoutMs")))//
-						.retryPolicy(retryPolicy)//
+						.connectString(ClientConst.zkInfo.getAddress())
+						.sessionTimeoutMs(ClientConst.zkInfo.getSessionTimeoutMs())
+						.connectionTimeoutMs(ClientConst.zkInfo.getConnectionTimeoutMs())
+						.retryPolicy(retryPolicy)
 						// .namespace(properties.getProjectName())// 增加命名空间
 						.build();
 				CountDownLatch cdl = new CountDownLatch(1);
@@ -58,25 +59,16 @@ public class ClientZkThread implements Runnable {
 				client.start();
 				logger.info("client 创建完毕 :" + client);
 				cdl.await();
-				// 增加路径监听器
-			//	pathChildrenListener = new ClientSideZkPathChildrenCacheListener();
-				// 绑定路径监听器
-				// 以前是通过配置文件，这里是通过扫描package获得
-				// 注意:检查问题，各种异常
-			//	String scanPackages = ClientProperties.getInstance().getProperty(PACKAGE);
-			//	Set<String> array = ClientSideProcessorFetcherHelper.fetchProcessors(scanPackages);
-					Set<String> array = new HashSet<>();
-					array.add("/thrift/imServerTest/provider");
+				Set<String> array = new HashSet<>();
+				for (String server : servers) {
+					array.add("/" + CommonConst.zk_server_root + "/"+server+"/" + CommonConst.zk_server_provider);
+				}
 				logger.info("all path here: " + array);
 				for (String s : array) {
-					// 修正
-					if (!s.startsWith("/")) {
-						s = "/" + s;
-					}
 					// 注册监听
 					PathChildrenCache cache = new PathChildrenCache(client, s, true);
 					cacheList.add(cache);
-					cache.getListenable().addListener( new ClientZkPathChildrenCacheListener("imServerTest"));
+					cache.getListenable().addListener(new ClientZkPathChildrenCacheListener(s));
 					cache.start(StartMode.POST_INITIALIZED_EVENT);
 				}
 			}
@@ -95,7 +87,8 @@ public class ClientZkThread implements Runnable {
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			};// 是为了给下面的zk监听留出时间准备就绪
+			}
+			;// 是为了给下面的zk监听留出时间准备就绪
 			ClientZkReadyListener.countdown();// 告知客户端，可以开始了
 		}
 		//

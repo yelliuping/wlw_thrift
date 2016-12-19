@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.thrift.TServiceClient;
 
 import com.wlw.thrift.client.entity.ServiceClientInfo;
+import com.wlw.thrift.client.serviceClient.MutiServiceClientPool;
 import com.wlw.thrift.util.Logger;
 
 /**
@@ -22,26 +23,28 @@ import com.wlw.thrift.util.Logger;
  * @param <T> extends TServiceClient
  * 
  */
-public class ClientThreadLocal<ServiceClientInfo> extends ThreadLocal<ServiceClientInfo> {
+public class ClientThreadLocal<T> extends ThreadLocal<T> {
 	
 	private static final Logger logger = Logger.getLogger(ClientThreadLocal.class);
 	
-	private ConcurrentHashMap<Thread, ClientThreadInfo> clientMap = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Thread, ClientThreadInfo> clientMap = new ConcurrentHashMap<>();
 
+	private final MutiServiceClientPool<? extends TServiceClient> mutiPool;
+	
 	private boolean isShutDown=false;
 	
-	public ClientThreadLocal() {
+	public ClientThreadLocal(MutiServiceClientPool<? extends TServiceClient> mutiPool) {
 		super();
+		this.mutiPool=mutiPool;
 	}
 
 	@Override
-	public ServiceClientInfo get() {
-		ServiceClientInfo t = super.get();
-		return t;
+	public T get() {
+		return super.get();
 	}
 
 	@Override
-	public void set(ServiceClientInfo value) {
+	public void set(T value) {
 		super.set(value);
 		Thread thread = Thread.currentThread();
 		ClientThreadInfo clientInfo = clientMap.get(thread);
@@ -50,7 +53,7 @@ public class ClientThreadLocal<ServiceClientInfo> extends ThreadLocal<ServiceCli
 			clientInfo.setTServiceClient(value);
 			clientMap.put(thread, clientInfo);
 		} else {
-			ServiceClientInfo tem = clientInfo.getList().get(0);
+			T tem = clientInfo.getList().get(0);
 			if (tem == null || tem != value) {
 				clientInfo.setTServiceClient(value);
 			}
@@ -68,7 +71,7 @@ public class ClientThreadLocal<ServiceClientInfo> extends ThreadLocal<ServiceCli
 		isShutDown=true;
 	}
 	
-	public void startCheckThread(){
+	public void startThreadCheck(){
 		new Thread(new Runnable() {
 			public void run() {
 				while(!isShutDown){
@@ -91,12 +94,15 @@ public class ClientThreadLocal<ServiceClientInfo> extends ThreadLocal<ServiceCli
 								entry=Iterator.next();
 								clientMap.remove(entry.getKey());
 								//放回连接池
-								
+								mutiPool.returnClientInfo( (List<ServiceClientInfo>) entry.getValue().list);
 								logger.debug("ClientThreadLocal CheckThread thread die return thread:"+entry.getKey().getName());
 							}
 						}
 					} catch (Exception e) {
 						logger.error("ClientThreadLocal CheckThread running error", e);
+						if(isShutDown){
+							
+						}
 					}
 				}
 			}
@@ -105,19 +111,19 @@ public class ClientThreadLocal<ServiceClientInfo> extends ThreadLocal<ServiceCli
 
 	
 	class ClientThreadInfo {
-		private List<ServiceClientInfo> list = new ArrayList<ServiceClientInfo>();
+		private List<T> list = new ArrayList<T>();
 		private long ctreateTime = System.currentTimeMillis();
 		private long modifyTime;
 
-		public void setTServiceClient(ServiceClientInfo t) {
+		public void setTServiceClient(T t) {
 			list.add(t);
 		}
 
-		public List<ServiceClientInfo> getList() {
+		public List<T> getList() {
 			return list;
 		}
 
-		public void setList(List<ServiceClientInfo> list) {
+		public void setList(List<T> list) {
 			this.list = list;
 		}
 

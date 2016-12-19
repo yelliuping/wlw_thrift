@@ -34,10 +34,10 @@ public class ClientZkEventConsumer implements Runnable {
 				
 				if(CommonConst.zk_server_provider.equals(event.getServerType())){
 					if (ClientZkEventType.ADDED == type) {
-						ClientData.add(protocolModel);
+						ClientData.addProvider(protocolModel);
 					} else if (ClientZkEventType.REMOVED == type) {
 						//删除在线
-						ClientData.del(protocolModel);
+						ClientData.delProvider(protocolModel);
 					}else{
 						logger.warn("ClientSideZkEventConsumer other event info:" + event);
 					}
