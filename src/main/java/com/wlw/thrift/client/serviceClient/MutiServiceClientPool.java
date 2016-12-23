@@ -121,7 +121,7 @@ public class MutiServiceClientPool<T extends TServiceClient> {
 			String key=server+"_"+service;
 			ServiceClientPool<T> pool=poolMap.get(key);
 			if(pool==null){
-				logger.error("MutiServiceClientPool getClientInfo error,pool is null");
+				logger.error("MutiServiceClientPool getClientInfo error,pool is null，pool key:"+key);
 				return clientInfo;
 			}
 			clientInfo=pool.get();
@@ -147,9 +147,14 @@ public class MutiServiceClientPool<T extends TServiceClient> {
 			 factory=clientInfo.getFactory();
 			String key=factory.getServer()+"_"+factory.getService();
 			ServiceClientPool<T> pool=poolMap.get(key);
+			//如果发现对于的连接池不在了（对应服务挂了）那么关闭放回连接池的客户端。
 			if(pool==null){
-				logger.error("MutiServiceClientPool ServiceClientInfo error,pool is null");
+				logger.error("MutiServiceClientPool ServiceClientInfo error,pool is null,and close client");
+				TProtocolCommad.close(clientInfo.getServiceClient().getInputProtocol());
 				return;
+			}
+			if(!TProtocolCommad.isActive(clientInfo.getServiceClient().getInputProtocol())){
+				logger.error("return client is null and  abandon return pool");
 			}
 			pool.put(clientInfo);
 			logger.debug("MutiServiceClientPool returnClientInfo success,key:"+key);
@@ -160,6 +165,10 @@ public class MutiServiceClientPool<T extends TServiceClient> {
 		}
 	}
 	
+	
+	/**
+	 * 检测连接池的信息情况（后续实现）
+	 */
 	public void startThreadCheck(){
 		/*new Thread(new Runnable() {
 			public void run() {

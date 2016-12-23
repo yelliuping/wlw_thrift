@@ -23,12 +23,14 @@ public class ServerManager {
 	private static final Logger logger = Logger.getLogger(ServerManager.class);
 	public static TServer server = null;
 
-	public static ThriftConfigInfo thriftConfog = (ThriftConfigInfo) ServerConst.serversMap.values().toArray()[0];
+	public static ThriftConfigInfo thriftConfog;
 
 	public static void start(List<TProcessor> processors) {
 		try {
 			//初始化配置文件
 			ServerConst.init();
+			//暂且获取第一条配置文件信息
+			thriftConfog = (ThriftConfigInfo) ServerConst.serversMap.values().toArray()[0];
 			//初始化zk
 			ZkManager.start();
 			//获取TProcessorInfo

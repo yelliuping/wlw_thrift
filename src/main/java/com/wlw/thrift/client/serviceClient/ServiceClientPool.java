@@ -31,10 +31,27 @@ public class ServiceClientPool<T extends TServiceClient> {
 	}
 	
 	public ServiceClientInfo<T> get() throws Exception{
-		ServiceClientInfo<T> clientInfo=objectQeque.pollFirst();
-		if(clientInfo!=null){
-			count.decrementAndGet();
+		int errorCount=0;
+		ServiceClientInfo<T> clientInfo=null;
+		//连续可获取5次异常的客户端连接
+		while(errorCount<5){
+			 clientInfo=objectQeque.pollFirst();
+			 if(clientInfo==null){
+				 break;
+			 }
+			if(clientInfo!=null){
+				if(TProtocolCommad.isActive(clientInfo.getServiceClient().getInputProtocol())){
+					count.decrementAndGet();
+					break;
+				}else{
+					errorCount++;
+					clientInfo=null;
+					continue;
+				}
+			}
+			
 		}
+				
 		if(clientInfo==null){
 			if(factorys.size()==0){
 				throw new NullPointerException("factorys is empty");

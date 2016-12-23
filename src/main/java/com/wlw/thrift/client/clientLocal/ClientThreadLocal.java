@@ -20,22 +20,23 @@ import com.wlw.thrift.util.Logger;
  * 
  * @author yelp
  *
- * @param <T> extends TServiceClient
+ * @param <T>
+ *            extends TServiceClient
  * 
  */
 public class ClientThreadLocal<T> extends ThreadLocal<T> {
-	
+
 	private static final Logger logger = Logger.getLogger(ClientThreadLocal.class);
-	
+
 	private final ConcurrentHashMap<Thread, ClientThreadInfo> clientMap = new ConcurrentHashMap<>();
 
 	private final MutiServiceClientPool<? extends TServiceClient> mutiPool;
-	
-	private boolean isShutDown=false;
-	
+
+	private boolean isShutDown = false;
+
 	public ClientThreadLocal(MutiServiceClientPool<? extends TServiceClient> mutiPool) {
 		super();
-		this.mutiPool=mutiPool;
+		this.mutiPool = mutiPool;
 	}
 
 	@Override
@@ -60,48 +61,49 @@ public class ClientThreadLocal<T> extends ThreadLocal<T> {
 			clientInfo.setModifyTime(System.currentTimeMillis());
 		}
 	}
-	
+
 	@Override
 	public void remove() {
 		super.remove();
 		clientMap.remove(Thread.currentThread());
 	}
-	
-	public void shutdown(){
-		isShutDown=true;
+
+	public void shutdown() {
+		isShutDown = true;
 	}
-	
-	public void startThreadCheck(){
+
+	public void startThreadCheck() {
 		new Thread(new Runnable() {
 			public void run() {
-				while(!isShutDown){
+				while (!isShutDown) {
 					try {
 						TimeUnit.SECONDS.sleep(1);
-						HashMap<Thread,ClientThreadInfo> dieMap = new LinkedHashMap<>();
-						Iterator<Map.Entry<Thread,ClientThreadInfo>> Iterator=	clientMap.entrySet().iterator();
-						Map.Entry<Thread,ClientThreadInfo> entry;
-						while(Iterator.hasNext()){
-							entry=Iterator.next();
-							if(!entry.getKey().isAlive()){
+						HashMap<Thread, ClientThreadInfo> dieMap = new LinkedHashMap<>();
+						Iterator<Map.Entry<Thread, ClientThreadInfo>> Iterator = clientMap.entrySet().iterator();
+						Map.Entry<Thread, ClientThreadInfo> entry;
+						while (Iterator.hasNext()) {
+							entry = Iterator.next();
+							if (!entry.getKey().isAlive()) {
 								dieMap.put(entry.getKey(), entry.getValue());
 							}
 						}
-						Iterator=null;
-						entry	=null;
-						if(dieMap.size()>0){
-							Iterator=dieMap.entrySet().iterator();
-							while(Iterator.hasNext()){
-								entry=Iterator.next();
+						Iterator = null;
+						entry = null;
+						if (dieMap.size() > 0) {
+							Iterator = dieMap.entrySet().iterator();
+							while (Iterator.hasNext()) {
+								entry = Iterator.next();
 								clientMap.remove(entry.getKey());
-								//放回连接池
-								mutiPool.returnClientInfo( (List<ServiceClientInfo>) entry.getValue().list);
-								logger.debug("ClientThreadLocal CheckThread thread die return thread:"+entry.getKey().getName());
+								logger.info("ClientThreadLocal CheckThread thread die return thread:"
+										+ entry.getKey().getName());
+								// 放回连接池
+								mutiPool.returnClientInfo((List<ServiceClientInfo>) entry.getValue().list);
 							}
 						}
 					} catch (Exception e) {
 						logger.error("ClientThreadLocal CheckThread running error", e);
-						if(isShutDown){
-							
+						if (isShutDown) {
+
 						}
 					}
 				}
@@ -109,7 +111,6 @@ public class ClientThreadLocal<T> extends ThreadLocal<T> {
 		}).start();
 	}
 
-	
 	class ClientThreadInfo {
 		private List<T> list = new ArrayList<T>();
 		private long ctreateTime = System.currentTimeMillis();

@@ -20,8 +20,8 @@ public class ServiceClientFactory<T extends TServiceClient> {
 
 	private int port;// 服务端口
 
-	private String server; //服务器名称
-	
+	private String server; // 服务器名称
+
 	private String service;// 服务名称
 
 	private Class<T> serviceClass;// 服务class
@@ -29,13 +29,14 @@ public class ServiceClientFactory<T extends TServiceClient> {
 	public ServiceClientFactory(String ip, int port, String server, String service, Class serviceClass) {
 		this.ip = ip;
 		this.port = port;
-		this.server=server;
+		this.server = server;
 		this.service = service;
 		this.serviceClass = serviceClass;
 	}
 
 	/**
 	 * 創建 TServiceClient
+	 * 
 	 * @return
 	 * @throws Exception
 	 */
@@ -43,7 +44,7 @@ public class ServiceClientFactory<T extends TServiceClient> {
 		if (serviceClass == null) {
 			throw new NullPointerException("service class is null");
 		}
-		ServiceClientInfo<T> clientInfo= null;
+		ServiceClientInfo<T> clientInfo = null;
 		try {
 			TSocket transport = new TSocket(ip, port);
 			transport.open();
@@ -51,9 +52,10 @@ public class ServiceClientFactory<T extends TServiceClient> {
 					new TBinaryProtocol(new TFramedTransport(transport)), service);
 			Constructor constructor = serviceClass.getConstructor(new Class[] { TProtocol.class });
 			T client = (T) constructor.newInstance(new Object[] { tMultiProtocol });
-			clientInfo=new ServiceClientInfo<T>(client, this);
+			clientInfo = new ServiceClientInfo<T>(client, this);
+			logger.debug("create client success,info:" + this.toString());
 		} catch (Exception e) {
-			logger.error("create ServiceClientInfo error",e);
+			logger.error("create ServiceClientInfo error", e);
 
 			throw e;
 		}
@@ -80,7 +82,7 @@ public class ServiceClientFactory<T extends TServiceClient> {
 	public void flush(T t) throws Exception {
 		TProtocolCommad.flush(t.getInputProtocol());
 	}
-	
+
 	/**
 	 * 销毁关闭全部
 	 * 
@@ -88,9 +90,9 @@ public class ServiceClientFactory<T extends TServiceClient> {
 	 * @throws Exception
 	 */
 	public void destroy(LinkedBlockingDeque<ServiceClientInfo<T>> objectQeque) throws Exception {
-		if(objectQeque!=null&&objectQeque.size()>0){
-			Iterator<ServiceClientInfo<T>> itarator=objectQeque.iterator();
-			while(itarator.hasNext()){
+		if (objectQeque != null && objectQeque.size() > 0) {
+			Iterator<ServiceClientInfo<T>> itarator = objectQeque.iterator();
+			while (itarator.hasNext()) {
 				destroy(itarator.next());
 			}
 		}
@@ -126,6 +128,7 @@ public class ServiceClientFactory<T extends TServiceClient> {
 	public void setPort(int port) {
 		this.port = port;
 	}
+
 	public String getServer() {
 		return server;
 	}
@@ -155,6 +158,5 @@ public class ServiceClientFactory<T extends TServiceClient> {
 		return "ServiceClientFactory [ip=" + ip + ", port=" + port + ", server=" + server + ", service=" + service
 				+ ", serviceClass=" + serviceClass.getName() + "]";
 	}
-	
-	
+
 }

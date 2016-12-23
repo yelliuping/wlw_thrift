@@ -77,7 +77,6 @@ public class ClientManager {
 			for (int i=0;i<clientInfos.size();i++) {
 				info=clientInfos.get(i);
 				servers.add(info.getServer());
-				System.out.println("sxxxxxxxxxxxxxxxxxxx:"+info.getServiceClass().getName());
 				processorInfoMap.put(info.getServiceClass().getName(), info);
 				logger.info("ClientManager initClient "+(i+1)+" server:"+info.getServer()+",service:"+info.getService());
 			}

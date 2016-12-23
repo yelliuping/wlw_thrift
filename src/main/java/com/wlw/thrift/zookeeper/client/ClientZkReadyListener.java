@@ -5,7 +5,6 @@ import java.util.concurrent.CountDownLatch;
 
 import com.wlw.thrift.util.Logger;
 
-
 public class ClientZkReadyListener {
 	private static final Logger logger = Logger.getLogger(ClientZkReadyListener.class);
 	private static Thread zkThread = null;
