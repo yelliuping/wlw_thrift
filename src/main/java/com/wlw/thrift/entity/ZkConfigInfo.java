@@ -30,4 +30,11 @@ public class ZkConfigInfo {
 	public void setConnectionTimeoutMs(int connectionTimeoutMs) {
 		this.connectionTimeoutMs = connectionTimeoutMs;
 	}
+	@Override
+	public String toString() {
+		return "ZkConfigInfo [address=" + address + ", sessionTimeoutMs=" + sessionTimeoutMs + ", connectionTimeoutMs="
+				+ connectionTimeoutMs + "]";
+	}
+	
+	
 }

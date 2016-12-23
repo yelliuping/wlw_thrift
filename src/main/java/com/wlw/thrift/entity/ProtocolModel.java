@@ -75,7 +75,7 @@ public class ProtocolModel {
 	}
 	
 	public String getUri(){
-		String uri=scheme+"/"+host+":"+port+"/"+server+"?isMutil="+isMutil+"&state="+state+"&services="+services;
+		String uri=scheme+"://"+host+":"+port+"/"+server+"?isMutil="+isMutil+"&state="+state+"&services="+services;
 		return uri;
 	}
 	

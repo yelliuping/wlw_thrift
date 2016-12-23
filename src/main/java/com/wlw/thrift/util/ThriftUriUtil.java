@@ -43,5 +43,17 @@ public class ThriftUriUtil {
 		}
 		return params;
 	}
+	
+	public static void main(String[] args) {
+		 try {
+			 String http="thrift://192.168.191.1:10004/HelloWorldServer?isMutil=true&state=1&services=[HelloWorldService]";
+			ProtocolModel uri=uri(http);
+			System.out.println(uri);
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 
 }

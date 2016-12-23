@@ -92,7 +92,7 @@ public class MutiServiceClientPool<T extends TServiceClient> {
 		ServiceClientFactory<T> factory=null;
 		try {
 			ProtocolModel model=ClientData.getProvider(clientInfo.getServer());
-			String key=model.getServer()+"_"+clientInfo.getServer();
+			String key=model.getServer()+"_"+clientInfo.getService();
 			ServiceClientPool<T> pool=poolMap.get(key);
 			 factory= new ServiceClientFactory<>(model.getHost(),
 												 model.getPort(),
@@ -105,9 +105,9 @@ public class MutiServiceClientPool<T extends TServiceClient> {
 			 }else{
 				 pool.addFactory(factory); 
 			 }
-			logger.debug("MutiServiceClientPool returnClientInfo success,key:"+key);
+			logger.debug("addByClient returnClientInfo success,key:"+key);
 		} catch (Exception e) {
-			logger.error("MutiServiceClientPool returnClientInfo error,clientInfo:"+factory, e);
+			logger.error("addByClient returnClientInfo error,clientInfo:"+factory, e);
 		}finally{
 			lock.writeLock().unlock();
 		}
